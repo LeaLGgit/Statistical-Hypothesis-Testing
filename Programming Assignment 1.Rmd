@@ -1,0 +1,70 @@
+---
+title: "Investigating statistical inferences by simulation"
+author: "LG"
+date: "27 12 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+# Overview:  
+
+Statistical inferences is a scientific field in which we can draw inferences from a sample to a whole population. One major theory is called the central limit theory. This says that for each sample the unknown population follows a normal distribution even if data is non-normal. To proof this, this document presents a simulation. 1000 sample means from exponential distributions are investigated in terms of mean, variability and distribution compared to a theoretical population. 
+## Simulation of exponential distribution
+
+### 1000 experiments
+First, let's have a look at a exponential distribution of 40 random variables at a rate lambda of 0.2. An example is shown in the histogram below. The blue line represents the mean of this distribution. Please note, that the distribution is highly skewed whereas normal distributions are bell-shaped.
+```{r exponential dist}
+set.seed(123)
+#theoretical distribution
+lambda <- 0.2
+
+#creating exponential distribution with rate lambda
+n <- 40
+expdis <- rexp(n, lambda)
+
+# showing in a graph
+hist(expdis, ylab = "Number of occurences", xlab= "Range of values", main = "An expontial distribution")
+abline(v=mean(expdis), lwd= 2, col="blue")
+```
+Imagine now, this simulation is performed a thousand times: 1000 samples revealing 1000 sample means. Ordering these 1000 sample means within a new distribution, according to the central limit theorem, this new distribution will behave normally. We store all 1000 sample means within one vector called `sample_means`.
+````{r simulation}
+# performing 1000 experiments 
+sample_means <- NULL
+n_samples <- 1000 
+ for (i in 1 : n_samples) sample_means <- c(sample_means, mean(rexp(40, lambda)))
+```
+
+### Sample mean vs theoretical mean 
+In theory, the mean as well as the standard deviation of an exponential distribution is calculated by 1/lambda.
+```{r mean vs}
+mu <- 1/lambda
+sample_center <- mean(sample_means)
+
+```
+Thus a exponential distribution with rate of 0.2 results in a theoretical mean of `r toString(mu)`. The mean of our sample means is `r toString(round(sample_center, digits = 3))`.
+
+### Sample variability vs theoretical variability
+Since the means are pretty close, let's look at variability.
+```{r sample means}
+theoretical_sd <- mu / sqrt(n)
+sample_sd <- sd(sample_means)
+
+theoretical_var <- (1/lambda^2)/n
+sample_var <- var(sample_means)
+```
+Theoretical standard deviation results in `r toString(theoretical_sd)` and the standard deviation of our simulation is `r toString(round(sample_sd, digits=3))`. Theoretical variance results in `r toString(theoretical_var)` and variance of our simulation is `r toString(round(sample_var, digits=3))`.
+
+### Distribution
+Exploring the distribution of our sample means follows accordingly to the central limit theorem: we clearly see a bell-shaped distribution with the red line illustrating the mean. 
+```{r sample distribution}
+hist(sample_means, col= "gray", main = "Distribution of sample means", ylab = "Frequency", xlab="Range of values")
+abline(v=mean(sample_means), lwd= 2, col="red")
+```
+All in all, the central limit theorem is proven correct,  even if the population distribution is exponential, the means of 1000 samples follow normal distribution. 
